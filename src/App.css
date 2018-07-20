@@ -1,0 +1,20 @@
+.logout:hover{
+  cursor: pointer;
+}
+
+.epicBurn .card-content{
+  font-size: 10px;
+  padding: 0;
+}
+
+/* .burndown thead{
+  display: block;
+  width: 100%;
+}
+
+.burndown tbody{
+  display: block;
+  height: 30rem;
+  overflow-y: scroll;
+  width: 100%;
+} */
