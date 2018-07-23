@@ -34,46 +34,46 @@ class ProjectPage extends Component {
                 }
             }
 
-            const response1 = await axios.post("http://localhost:5000/teams/deleteTeams",{
+            const response1 = await axios.post("/teams/deleteTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response2 = await axios.post("http://localhost:5000/teams/setTeams",{
+            const response2 = await axios.post("/teams/setTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
                 sprints: sprintsObject
             });
 
-            const response3 = await axios.post("http://localhost:5000/project/setSprintsTeams",{
+            const response3 = await axios.post("/project/setSprintsTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
                 sprints: sprints.slice()
             });
 
-            const response4 = await axios.post("http://localhost:5000/epic/deleteEpics",{
+            const response4 = await axios.post("/epic/deleteEpics",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response5 = await axios.post("http://localhost:5000/epic/setEpics",{
+            const response5 = await axios.post("/epic/setEpics",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response6 = await axios.post("http://localhost:5000/stories/deleteStories",{
+            const response6 = await axios.post("/stories/deleteStories",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
             for(let i=0; i<response5.data.epics.length; i++){
-                let response7 = await axios.post("http://localhost:5000/stories/setStories",{
+                let response7 = await axios.post("/stories/setStories",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
