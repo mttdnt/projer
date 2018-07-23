@@ -25,7 +25,7 @@ class CapacityPlanner extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -45,7 +45,7 @@ class CapacityPlanner extends Component {
     setCapacities = async () => {
         
         for(let i=0; i<this.state.teams.length; i++){
-            let response = await axios.post("http://localhost:5000/teams/updateCapacities",{
+            let response = await axios.post("/teams/updateCapacities",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
