@@ -24,13 +24,13 @@ class Login extends Component {
     onLogin = async () => {
 
         try{
-            const login = await axios.post("http://18.221.174.71:5000/user/login",{
+            const login = await axios.post("http://localhost:5000/user/login",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project
             });
 
-            const setProject  = await axios.post("http://18.221.174.71:5000/project/setProject",{
+            const setProject  = await axios.post("http://localhost:5000/project/setProject",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project
