@@ -23,7 +23,7 @@ class PriorityPlanner extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -41,7 +41,7 @@ class PriorityPlanner extends Component {
     setPriorities = async () => {
         
         for(let i=0; i<this.state.epics.length; i++){
-            let response = await axios.post("http://localhost:5000/epics/updatePriority",{
+            let response = await axios.post("/epics/updatePriority",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
