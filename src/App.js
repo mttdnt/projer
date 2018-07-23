@@ -31,7 +31,7 @@ class App extends Component {
   setUser = async (email, password, project) =>{
 
     try{
-      const response = await axios.post("http://localhost:5000/project/getProject",{
+      const response = await axios.post("/project/getProject",{
           email: email,
           password: password,
           project: project
