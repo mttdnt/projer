@@ -43,17 +43,21 @@ class CapacityPlanner extends Component {
     }
 
     setCapacities = async () => {
-        
-        for(let i=0; i<this.state.teams.length; i++){
-            let response = await axios.post("http://localhost:5000/teams/updateCapacities",{
-                email: this.props.email,
-                password: this.props.password,
-                project: this.props.project,
-                teamid: this.state.teams[i]._id,
-                capacities: this.state.teams[i].capacities
-            });
+
+        try{
+            for(let i=0; i<this.state.teams.length; i++){
+                let response = await axios.post("http://localhost:5000/teams/updateCapacities",{
+                    email: this.props.email,
+                    password: this.props.password,
+                    project: this.props.project,
+                    teamid: this.state.teams[i]._id,
+                    capacities: this.state.teams[i].capacities
+                });
+            }
+            this.setState({capacitiesSubmit: true});
+        }catch(e){
+            console.error(e);
         }
-        this.setState({capacitiesSubmit: true});
     }
 
     onCapacityChange = (e) => {
@@ -67,7 +71,7 @@ class CapacityPlanner extends Component {
 
     renderSprintHeaders = () =>{
         return this.state.sprints.map( sprint => {
-            return <td>{sprint}</td>
+            return <td>{sprint.name}</td>
         });
     }
 

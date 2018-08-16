@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
 import axios from 'axios';
+import { setToken, getToken, removeToken } from './services/tokenService';
 
 import Login from "./components/Login";
 import ProjectPage from "./components/ProjectPage";
@@ -9,6 +10,8 @@ import CapacityPlanner from "./components/CapacityPlanner";
 import Dashboard from "./components/Dashboard";
 import PriorityPlanner from "./components/PriorityPlanner";
 import Burndown from "./components/Burndown";
+import DependencyPlanner from "./components/DependencyPlanner";
+import Reports from "./components/Reports";
 
 class App extends Component {
 
@@ -55,9 +58,7 @@ class App extends Component {
                 this.state.email===null || this.state.password===null || this.state.project===null ?
                 <Login setUser={this.setUser} />
                 :
-                !this.state.epics?<Redirect to="/project"/>:<Redirect to="/dashboard"/> 
-
-                                   
+                !this.state.epics?<Redirect to="/project"/>:<Redirect to="/dashboard"/>                         
               }/>
               <Route exact path='/dashboard' render={() =>
                 this.state.email===null || this.state.password===null || this.state.project===null ?
@@ -83,12 +84,24 @@ class App extends Component {
                 :
                 <PriorityPlanner email={this.state.email} password={this.state.password} project={this.state.project}/>                   
               }/>
-                <Route exact path='/burndown' render={() => 
+              <Route exact path='/burndown' render={() => 
                 this.state.email===null || this.state.password===null || this.state.project===null ?
                 <Redirect to="/"/>
                 :
                 <Burndown email={this.state.email} password={this.state.password} project={this.state.project}/>                   
               }/>
+              <Route exact path='/dependency' render={() => 
+                this.state.email===null || this.state.password===null || this.state.project===null ?
+                <Redirect to="/"/>
+                :
+                <DependencyPlanner email={this.state.email} password={this.state.password} project={this.state.project}/>                   
+              }/>
+              <Route exact path='/reports' render={() => 
+                this.state.email===null || this.state.password===null || this.state.project===null ?
+                <Redirect to="/"/>
+                :
+                <Reports email={this.state.email} password={this.state.password} project={this.state.project}/>                   
+              }/>               
             </div>
         </Router>
      

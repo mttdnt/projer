@@ -5,6 +5,9 @@ import { Redirect, Link } from 'react-router-dom';
 import axios from 'axios';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const options = [{ value: 1, label: 1 }, { value: 2, label: 2 }, { value: 3, label: 3 }, { value: 4, label: 4 }, { value: 5, label: 5 }];
 
@@ -17,20 +20,23 @@ class ProjectPage extends Component {
             sprints: 1,
             weeks: 1,
             dbSet: false,
-            uploading: false
+            uploading: false,
+            sprintsDate: null
         }
+    }
+
+    componentDidMount(){
+        this.generateSprints(); 
     }
 
     setDB = async () =>{
         try{
 
-            let sprints = [];
             let sprintsObject = {};
 
             for(let j=0; j<this.state.sprints; j++){
                 for(let k=0; k<this.state.weeks; k++){
-                    sprints.push(`Sprint ${j+1} - Week ${k+1}`);
-                    sprintsObject[`Sprint ${j+1} - Week ${k+1}`] = 0;
+                    sprintsObject[`S${j+1}-W${k+1}`] = 0;
                 }
             }
 
@@ -51,7 +57,7 @@ class ProjectPage extends Component {
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
-                sprints: sprints.slice()
+                sprints: this.state.sprintsDate
             });
 
             const response4 = await axios.post("http://localhost:5000/epic/deleteEpics",{
@@ -94,10 +100,56 @@ class ProjectPage extends Component {
     }
 
     onSprintSelect = (e) => {
-        this.setState({sprints: e.value})
+        this.setState({sprints: e.value}, () => this.generateSprints());
     }
+
     onWeekSelect = (e) => {
-        this.setState({weeks: e.value})
+        this.setState({weeks: e.value}, () => this.generateSprints());
+    }
+
+    onStartChange = (e,index) =>{
+        let newSprintsDate = this.state.sprintsDate;
+        newSprintsDate[index].start=e;
+        this.setState({sprintsDate: newSprintsDate});
+    }
+
+    // onEndChange = (e,index) =>{
+    //     let newSprintsDate = this.state.sprintsDate;
+    //     newSprintsDate[index].end=e;
+    //     this.setState({sprintsDate: newSprintsDate});
+    // }
+
+    generateSprints = () => {
+        let sprints = [];
+
+        for(let j=0; j<this.state.sprints; j++){
+            for(let k=0; k<this.state.weeks; k++){
+                sprints.push({name: `S${j+1}-W${k+1}`, start: moment(), end: moment()});
+            }
+        }
+
+        this.setState({sprintsDate: sprints});
+
+    }
+
+    renderSprints = () => {
+        return(
+            <table>
+                <thead>
+                    <tr>
+                        {this.state.sprintsDate.map( header => <td>{header.name}</td>)}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {this.state.sprintsDate.map( (header, index) => <td>Start Date: <DatePicker id={index} onChange={(e) => this.onStartChange(e,index)} selected={this.state.sprintsDate[index].start}/></td>)}
+                    </tr>
+                    {/* <tr>
+                        {this.state.sprintsDate.map( (header,index) => <td>End Date: <DatePicker id={index} onChange={(e) => this.onEndChange(e,index)} selected={this.state.sprintsDate[index].end}/></td>)}
+                    </tr> */}
+                </tbody>
+            </table>
+        );
     }
 
     render() {
@@ -117,6 +169,7 @@ class ProjectPage extends Component {
             <Dropdown options={options} onChange={this.onSprintSelect} value={options[this.state.sprints-1]}/>
             <h3>Weeks/Sprint</h3>
             <Dropdown options={options} onChange={this.onWeekSelect} value={options[this.state.weeks-1]}/>
+            {this.state.sprintsDate? this.renderSprints(): null}
             <div style={styles.buttons}>
                 <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
                 <Button onClick={this.reset}>Reset Sprints</Button>

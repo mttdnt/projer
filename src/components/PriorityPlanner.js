@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../App.css';
-import { Input, Button, Collection, CollectionItem, Card, Icon } from 'react-materialize';
+import { Input, Button, Collection, CollectionItem, Card, Icon, Table } from 'react-materialize';
 import axios from 'axios';
 import { Redirect, Link } from 'react-router-dom';
 
@@ -39,17 +39,22 @@ class PriorityPlanner extends Component {
     }
 
     setPriorities = async () => {
-        
-        for(let i=0; i<this.state.epics.length; i++){
-            let response = await axios.post("http://localhost:5000/epics/updatePriority",{
-                email: this.props.email,
-                password: this.props.password,
-                project: this.props.project,
-                epicid: this.state.epics[i]._id,
-                priority: this.state.epics[i].priority
-            });
+
+        try{
+            for(let i=0; i<this.state.epics.length; i++){
+                let response = await axios.post("http://localhost:5000/epics/updatePriority",{
+                    email: this.props.email,
+                    password: this.props.password,
+                    project: this.props.project,
+                    epicid: this.state.epics[i]._id,
+                    priority: this.state.epics[i].priority
+                });
+            }
+            this.setState({capacitiesSubmit: true});
+        }catch(e){
+            console.error(e);
         }
-        this.setState({capacitiesSubmit: true});
+        
     }
 
     onPriorityChange = (e) => {
@@ -64,6 +69,7 @@ class PriorityPlanner extends Component {
                 <tr>
                     <td><b>{epic.epic_key}</b></td>
                     <td>{epic.summary}</td>
+                    <td>{epic.points}</td>
                     <td><input index={index} onChange={this.onPriorityChange} value={this.state.epics[index].priority}/></td>
                 </tr>
             );
@@ -85,18 +91,19 @@ class PriorityPlanner extends Component {
             <h3 style={styles.header}>Priority Planner</h3>
 
             <div style={styles.collection}>
-                <table>
+                <Table striped={true} bordered={true}>
                     <thead>
                         <tr>
                             <td>Epic</td>
                             <td>Summary</td>
+                            <td>Total Points</td>
                             <td>Priority</td>
                         </tr>
                     </thead>
                     <tbody>
                         {this.renderEpics()}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
             <div>
@@ -126,7 +133,7 @@ const styles = {
         "margin": "0"
     },
     collection: {
-        "max-height": "30rem",
+        "maxHeight": "30rem",
         "overflow-y": "scroll",
         "width": "80%",
         "marginLeft": "10%"

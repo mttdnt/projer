@@ -24,8 +24,8 @@ class Dashboard extends Component {
           </Col>
 
           <Col s={3}>
-            <Link style={styles.iconLink} to="/dashboard">
-              <Icon large>equalizer</Icon>
+            <Link style={styles.iconLink} to="/dependency">
+              <Icon large>device_hub</Icon>
             </Link>
             <div>Dependency Planner</div>
           </Col>
@@ -42,6 +42,13 @@ class Dashboard extends Component {
               <Icon large>replay</Icon>
             </Link>
             <div>Reset Project</div>
+          </Col>
+
+          <Col s={3}>
+            <Link style={styles.iconLink} to="/reports">
+              <Icon large>equalizer</Icon>
+            </Link>
+            <div>Reports</div>
           </Col>
 
           <Col s={3}>
