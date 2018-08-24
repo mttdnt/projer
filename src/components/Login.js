@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../App.css';
 import { Input, Button, Card, Icon } from 'react-materialize';
+import {Link} from 'react-router-dom';
 import axios from 'axios';
 
 class Login extends Component { 
@@ -11,7 +12,6 @@ class Login extends Component {
         this.state = {
             email: null,
             password: null,
-            project: null,
             loggedIn: false,
             user: null
         }
@@ -24,21 +24,14 @@ class Login extends Component {
     onLogin = async () => {
 
         try{
-            const login = await axios.post("http://localhost:5000/user/login",{
+            const login = await axios.post("/user/login",{
                 email: this.state.email,
-                password: this.state.password,
-                project: this.state.project
+                password: this.state.password
             });
 
-            const setProject  = await axios.post("http://localhost:5000/project/setProject",{
-                email: this.state.email,
-                password: this.state.password,
-                project: this.state.project
-            });
-
-            this.props.setUser(this.state.email,this.state.password, this.state.project);
+            this.props.setUser(this.state.email,this.state.password);
         }catch(e){
-            alert("Invalid Credentials")
+            alert('Unauthorized Login');
         }
     }
 
@@ -48,8 +41,10 @@ class Login extends Component {
         <Card style={styles.loginPane}>  
             <span style={styles.iconInput}><Icon medium style={styles.icon}>email</Icon><input name="email" label="Email" value={this.state.email} onChange={this.onFormChange} placeholder="Email" style={styles.input}/></span>
             <span style={styles.iconInput}><Icon medium style={styles.icon}>vpn_key</Icon><input name="password" type="password" label="Password" value={this.state.password} onChange={this.onFormChange} placeholder="Password" style={styles.input}/></span>
-            <span style={styles.iconInput}><Icon medium style={styles.icon}>folder</Icon><input name="project" label="Project" value={this.state.project}  onChange={this.onFormChange} placeholder="Project" style={styles.input}/></span>
             <Button waves="light" onClick={this.onLogin}>Login</Button>
+            <br/>
+            <br/>
+            <Button waves="light"><Link  style={styles.iconLink} to='/signup'>Signup</Link></Button>
         </Card>
         );
     }
@@ -72,6 +67,9 @@ const styles = {
     },
     input: {
         "marginLeft": "5rem"
-    }
+    },
+    iconLink: {
+        "color": "#FFFFFF"
+      }
   };
   

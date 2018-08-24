@@ -27,7 +27,7 @@ class DependencyPlanner extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -45,7 +45,7 @@ class DependencyPlanner extends Component {
     setDependencies = async () => {
         try{
             for(let i=0; i<this.state.epics.length; i++){
-                let response = await axios.post("http://localhost:5000/epics/updateDependency",{
+                let response = await axios.post("/epic/updateDependency",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -140,7 +140,7 @@ class DependencyPlanner extends Component {
             </div>
 
             <div>
-                <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+                <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
                 <Button onClick={this.setDependencies}>Save Dependencies</Button>
             </div>
 
@@ -195,5 +195,10 @@ const styles = {
         "height": "10rem",
         "overflow-y": "scroll",
         "width": "100%",
+    },
+    backBtn: {
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
     }
 }

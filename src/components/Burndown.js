@@ -13,7 +13,8 @@ class Burndown extends Component {
             epics: null,
             teams: null,
             loading: true,
-            burndown: null
+            burndown: null, 
+            sprints: null
         }
     }
 
@@ -24,13 +25,13 @@ class Burndown extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
             
-            this.setState({epics: JSON.parse(JSON.stringify(response.data.epics)), teams: JSON.parse(JSON.stringify(response.data.teams))});
+            this.setState({epics: JSON.parse(JSON.stringify(response.data.epics)), teams: JSON.parse(JSON.stringify(response.data.teams)), sprints: JSON.parse(JSON.stringify(response.data.sprints))});
             this.burndown(JSON.parse(JSON.stringify(response.data.epics)), JSON.parse(JSON.stringify(response.data.teams)), JSON.parse(JSON.stringify(response.data.sprints)));
         }catch(e){
             console.error(e);
@@ -40,7 +41,7 @@ class Burndown extends Component {
     setBurndown = async () => {
         try{
             for(let i=0; i<this.state.teams.length; i++){
-                let response = await axios.post("http://localhost:5000/project/setBurndown",{
+                let response = await axios.post("/project/setBurndown",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -96,42 +97,38 @@ class Burndown extends Component {
             started = [];
             for(let j=0; j<teams.length; j++){
                 for(let k=0; k<epics.length; k++){
-                    for(let z=0; z<epics[k].stories.length; z++){
-                        if (Number(teams[j].capacities[sprints[i].name]) === 0){
-                            break;
+                   
+                    if (Number(teams[j].capacities[sprints[i].name]) === 0){
+                        break;
+                    }
+
+                    let isDependent = false;
+
+                    if(epics[k].dependencies.length!==0){
+                        isDependent = this.checkDependencies(epics[k].dependencies, epics);
+                    }
+
+                    if(!isDependent && epics[k].team === teams[j].name && Number(epics[k].points) !== 0){
+
+                        if(!epics[k].isStarted && !started.includes(epics[k].epic_key)){
+                            started.push(epics[k].epic_key);
                         }
-
-                        let isDependent = false;
-
-                        if(epics[k].dependencies.length!==0){
-                            isDependent = this.checkDependencies(epics[k].dependencies, epics);
-                        }
-
-                        if(!isDependent && epics[k].stories[z].team === teams[j].name && Number(epics[k].stories[z].points) !== 0){
-
-                            if(!epics[k].isStarted && !started.includes(epics[k].epic_key)){
-                                started.push(epics[k].epic_key);
-                            }
                             
-                            let result = Number(epics[k].stories[z].points)-Number(teams[j].capacities[sprints[i].name]);
-                            let amount;
-                            if(result>=0){
-                                epics[k].points = Number(epics[k].points) - Number(teams[j].capacities[sprints[i].name]);
-                                amount = Number(teams[j].capacities[sprints[i].name]);
-                                teams[j].capacities[sprints[i].name] = 0;
-                                epics[k].stories[z].points = result;
+                        let result = Number(epics[k].points)-Number(teams[j].capacities[sprints[i].name]);
+                        let amount;
+                        if(result>=0){
+                            epics[k].points = result;
+                            amount = Number(teams[j].capacities[sprints[i].name]);
+                            teams[j].capacities[sprints[i].name] = 0;
                                 
-                                burndown[sprints[i].name][teams[j].name].push({epic: epics[k].epic_key, amount: amount, story: epics[k].stories[z].story_key});
-                            }else{
-                                epics[k].points = Number(epics[k].points)-Number(epics[k].stories[z].points);
-                                amount = Number(epics[k].stories[z].points);
-                                teams[j].capacities[sprints[i].name] = -1*result;
-                                epics[k].stories[z].points = 0;
+                            burndown[sprints[i].name][teams[j].name].push({epic: epics[k].epic_key, amount: amount, summary: epics[k].summary});
+                        }else{
+                            amount = Number(epics[k].points);
+                            epics[k].points = 0;
+                            teams[j].capacities[sprints[i].name] = -1*result;
 
-                                burndown[sprints[i].name][teams[j].name].push({epic: epics[k].epic_key, amount: amount, story: epics[k].stories[z].story_key});
-                            }
+                            burndown[sprints[i].name][teams[j].name].push({epic: epics[k].epic_key, amount: amount, summary: epics[k].summary});
                         }
-
                     }
                 }
             }
@@ -161,9 +158,10 @@ class Burndown extends Component {
                             <Card className="epicBurn">
                                 <b>Epic:</b> {burn.epic}
                                 <br/>
+                                <b>Summary:</b> {burn.summary}
+                                <br/>
                                 <b>Points:</b> {burn.amount}
                                 <br/>
-                                <b>Story:</b> {burn.story}
                             </Card>
                          )}
                      </td>   
@@ -174,8 +172,10 @@ class Burndown extends Component {
     }
 
     renderHeaders = () =>{
-        return Object.keys(this.state.burndown).map( sprint => {
-            return <td>{sprint}</td>
+        return this.state.sprints.map( sprint => {
+            let start = new Date(sprint.start);
+            let end = new Date(sprint.end);
+            return <td style={styles.sprintHeader}><h5>{sprint.name}</h5><div style={styles.dates}>{start.toUTCString().substring(5,16)} - {end.toUTCString().substring(5,16)}</div></td>
         });
     }
 
@@ -201,7 +201,7 @@ class Burndown extends Component {
                     </tbody>
                 </Table>
             </div>
-            <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+            <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
             <Button onClick={this.setBurndown}>Save Burndown</Button>
         </Card>
         );
@@ -228,5 +228,16 @@ const styles = {
     burndown: {
         "max-height": "30rem",
         "overflow-y": "scroll",
+    },
+    backBtn: {
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
+    },
+    sprintHeader: {
+        "textAlign": "center"
+    },
+    dates: {
+        "fontSize": "10px"
     }
 }

@@ -25,7 +25,7 @@ class CapacityPlanner extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -46,7 +46,7 @@ class CapacityPlanner extends Component {
 
         try{
             for(let i=0; i<this.state.teams.length; i++){
-                let response = await axios.post("http://localhost:5000/teams/updateCapacities",{
+                let response = await axios.post("/team/updateCapacities",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -112,7 +112,7 @@ class CapacityPlanner extends Component {
                         {this.renderTableBody()}
                     </tbody>
                 </table>
-                <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+                <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
                 <Button onClick={this.setCapacities}>Save Capacities</Button>
             </Card>
         </div>
@@ -136,5 +136,10 @@ const styles = {
     },
     header: {
         "margin": "0"
+    },
+    backBtn: {
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
     }
 };

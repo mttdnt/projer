@@ -7,14 +7,6 @@
   padding: 0;
 }
 
-/* .burndown thead{
-  display: block;
-  width: 100%;
+.projectCard:hover{
+  cursor: pointer;
 }
-
-.burndown tbody{
-  display: block;
-  height: 30rem;
-  overflow-y: scroll;
-  width: 100%;
-} */

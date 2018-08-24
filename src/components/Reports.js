@@ -17,7 +17,10 @@ class Reports extends Component {
             loading: true,
             actualBurndown: null,
             options: null,
-            currentFilter: 'None'
+            currentFilter: 'All',
+            currentSprint: null,
+            sprints: null,
+            teams: null
         }
     }
 
@@ -27,7 +30,7 @@ class Reports extends Component {
 
     getProject = async () => {
         try{
-            const response = await axios.post("http://localhost:5000/project/getProject",{
+            const response = await axios.post("/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -37,7 +40,7 @@ class Reports extends Component {
                 return team.name;
             });
 
-            teams.push('None');
+            teams.push('All');
     
             this.setState({
                 burndown: response.data.burndown,
@@ -69,19 +72,25 @@ class Reports extends Component {
             response.data.map( (issue) =>{
                 if(issue.fields.resolutiondate!==null){
                     let sprint = this.checkSprint(issue.fields.resolutiondate);
-                    if(sprint!==null){
-                        burndown[sprint][issue.fields.customfield_10500.value].push({amount: issue.fields.customfield_10200, story: issue.key, epic: issue.fields.customfield_10006});
+                    if(sprint.name!==null){
+                        if(burndown[sprint.name][issue.fields.customfield_10500.value])
+                        burndown[sprint.name][issue.fields.customfield_10500.value].push({amount: issue.fields.customfield_10200, epic: issue.fields.customfield_10006});
                     } 
                 }
             });
-            this.setState({loading: false, actualBurndown: burndown});
+            this.setState({actualBurndown: burndown}, ()=>this.getCurrentSprint());
         }catch(e){
             console.error(e);
         }
     }
 
+    getCurrentSprint(){
+        let currentDate =this.formatDate(moment());
+        this.setState({loading: false, currentSprint: this.checkSprint(currentDate)});
+    }
+
     formatDate = (date) =>{
-        let d = new Date(new Date(date).toISOString().slice(0,10));
+        let d = new Date(new Date(date).toISOString());
         d.setHours(0,0,0,0);
         return d;
     }
@@ -92,11 +101,11 @@ class Reports extends Component {
         for(let i=0; i<this.state.sprints.length; i++){
             let d1 = this.formatDate(this.state.sprints[i].start);
             let d2 = this.formatDate(date);
-            let d3 = this.formatDate(this.state.sprints[i].start);
+            let d3 = this.formatDate(this.state.sprints[i].end);
             d3.setDate(d3.getDate()+6);
             
-            if(d1 <= d2 && d2 <=  d3){
-                sprint = this.state.sprints[i].name;
+            if(d1 <= d2 && d2 < d3){
+                sprint = this.state.sprints[i];
                 break;
             }
         }
@@ -108,7 +117,7 @@ class Reports extends Component {
         if(this.state.burndown!==null && this.state.actualBurndown!==null){
             let filteredBurndown = null;
             let filteredActualBurndown = null;
-            if(this.state.currentFilter!=='None'){
+            if(this.state.currentFilter!=='All'){
                 filteredBurndown = {};
                 filteredActualBurndown = {};
                 Object.keys(this.state.burndown).forEach( sprint =>{
@@ -147,12 +156,58 @@ class Reports extends Component {
 
                 if(index!==0){
                     total=total+formattedData[index-1].points;
-                    actual=actual+formattedData[index-1].actual;
+                    if(this.formatDate(this.state.sprints[index].start) >= this.formatDate(this.state.currentSprint.end)){
+                        actual=null;
+                    }else{
+                        actual=actual+formattedData[index-1].actual;
+                    }   
                 }
                 formattedData.push({name: sprint, points: total, actual: actual});
             });
 
             return(formattedData);
+        }
+    }
+
+    checkForEpic = (epic) =>{
+        let sprintBurn = this.state.actualBurndown[this.state.currentSprint.name];
+        let amount = 0;
+        Object.keys(sprintBurn).forEach(team =>{
+            sprintBurn[team].forEach(burn=>{
+                if(burn.epic === epic){
+                    amount = amount+burn.amount;
+                }
+            });
+        });
+        return amount;
+    }
+
+    renderDeliveredEpics = () => {
+        const epics = this.state.burndown[this.state.currentSprint.name];
+        if(this.state.currentFilter==='All'){
+            return Object.keys(epics).map(team =>{
+                return epics[team].map(epic =>{
+                    return(
+                        <tr>
+                            <td>{epic.epic}</td> 
+                            <td>{team}</td> 
+                            <td>{epic.amount}</td>
+                            <td>{epic.amount-this.checkForEpic(epic.epic)}</td>
+                        </tr>
+                    ); 
+                });
+            });
+        }else{
+            return epics[this.state.currentFilter].map(epic =>{
+                return(
+                    <tr>
+                        <td>{epic.epic}</td> 
+                        <td>{this.state.currentFilter}</td> 
+                        <td>{epic.amount}</td>
+                        <td>{epic.amount-this.checkForEpic(epic.epic)}</td>
+                    </tr>
+                ); 
+            });
         }
     }
 
@@ -164,24 +219,61 @@ class Reports extends Component {
         if(this.state.loading){
             return <div  style={styles.loader}><Preloader size='big'/></div>
         }
+
+        if(this.state.burndown===undefined && !this.state.loading){
+            return(
+                <div className="App">  
+                    <Card style={styles.capacityTable}>
+                        <h3>No Burndown Available</h3>
+                        <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+                    </Card>
+                </div>
+            );
+        }
          
         return (
         <div className="App">  
             <Card style={styles.capacityTable}>
-                <h3>{this.props.project} Burndown</h3>
-                <Dropdown options={this.state.options} placeholder="Filter by Team" onChange={this.changeFilter} value={this.state.currentFilter}/>
-                <ResponsiveContainer height={300} width="100%">
-                    <LineChart data={this.formatData()}>
-                        <CartesianGrid />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Line name="Planned" type="monotone" dataKey="points" stroke="#8884d8" />
-                        <Line name="Actual" type="monotone" dataKey="actual" stroke="#82ca9d" />
-                        <Legend />
-                        <Tooltip />
-                    </LineChart>
-                </ResponsiveContainer>
-                <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+                <h3>{this.props.project} Status for {this.state.currentSprint.name} </h3>
+                <div style={styles.dropdown}>
+                    <h5>Filter</h5>
+                    <Dropdown options={this.state.options} placeholder="Filter by Team" onChange={this.changeFilter} value={this.state.currentFilter}/>
+                </div>
+                <span style={styles.reportDisplay}>
+                    <div style={styles.dataDisplay}>
+                        <h5>Burnup</h5>
+                        <ResponsiveContainer height={300} width="80%">
+                            <LineChart data={this.formatData()}>
+                                <CartesianGrid />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Line name="Planned" type="monotone" dataKey="points" stroke="#8884d8" />
+                                <Line name="Actual" type="monotone" dataKey="actual" stroke="#82ca9d" />
+                                <Legend />
+                                <Tooltip />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div style={styles.dataDisplay}>
+                        <h5>Epics to be delivered in {this.state.currentSprint.name}</h5>
+                        <div style={styles.epicDisplay}>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <td>Epic</td>
+                                        <td>Team</td>
+                                        <td>Planned</td>
+                                        <td>Remaining</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {this.renderDeliveredEpics()}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>   
+                </span>
+                <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
             </Card>
         </div>
         );
@@ -197,17 +289,31 @@ const styles = {
         "left": "50%"
     },
     backBtnLink: {
-        "color": "#FFFFFF",
+        "color": "#FFFFFF"
     },
     capacityTable: {
         "width": "90%",
         "position": "absolute",
         "left": "5%",
         "marginTop": "1rem",
-        "overflowX": "scroll", 
         "textAlign": "center"    
     },
-    header: {
-        "margin": "0"
+    reportDisplay: {
+        "display": "-webkit-box"
+    },
+    dataDisplay: {
+        "width": "50%"
+    },
+    epicDisplay: {
+        "maxHeight": "300px",
+        "overflow-y": "scroll"
+    },
+    dropdown: {
+        "width": "25%"
+    },
+    backBtn: {
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
     }
 };

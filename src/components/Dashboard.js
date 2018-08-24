@@ -38,24 +38,24 @@ class Dashboard extends Component {
           </Col>
 
           <Col s={3}>
-            <Link style={styles.iconLink} to="/project">
+            <Link style={styles.iconLink} to="/edit">
               <Icon large>replay</Icon>
             </Link>
-            <div>Reset Project</div>
+            <div>Edit Project Settings</div>
           </Col>
 
           <Col s={3}>
             <Link style={styles.iconLink} to="/reports">
               <Icon large>equalizer</Icon>
             </Link>
-            <div>Reports</div>
+            <div>Current Report</div>
           </Col>
 
           <Col s={3}>
-            <div className="logout" onClick={this.props.logout}>
+            <div className="logout" onClick={() =>{this.props.setProject(null)}}>
               <Icon style={styles.iconLink} large>exit_to_app</Icon>
             </div>
-            <div>Log Out</div>
+            <div>Select Project</div>
           </Col>
         </Row>
       </Card>
