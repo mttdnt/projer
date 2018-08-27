@@ -60,7 +60,9 @@ class Signup extends Component {
                 team: this.state.team,
                 url: this.state.url,
                 parentEpic: this.state.parentEpic,
-                storyPoint: this.state.storyPoint
+                storyPoint: this.state.storyPoint,
+                sprints: this.state.sprints,
+                weeks: this.state.weeks
             });
 
             const response3 = await axios.post("/team/setTeams",{

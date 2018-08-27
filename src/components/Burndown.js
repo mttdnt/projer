@@ -49,6 +49,7 @@ class Burndown extends Component {
                 });
             }
             this.setState({burndownSubmit: true});
+            alert('Burndown Saved');
         }catch(e){
             console.error(e);
         }

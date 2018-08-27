@@ -20,7 +20,10 @@ class Reports extends Component {
             currentFilter: 'All',
             currentSprint: null,
             sprints: null,
-            teams: null
+            teams: null,
+            team: null,
+            storyPoint: null,
+            parentEpic: null
         }
     }
 
@@ -46,7 +49,10 @@ class Reports extends Component {
                 burndown: response.data.burndown,
                 sprints: response.data.sprints,
                 teams: response.data.teams,
-                options: teams
+                options: teams,
+                team: response.data.team_field,
+                storyPoint: response.data.storyPoint_field,
+                parentEpic: response.data.parentEpic_field
             }, ()=>this.getUpdates());
         }catch(e){
             console.error(e);
@@ -73,8 +79,8 @@ class Reports extends Component {
                 if(issue.fields.resolutiondate!==null){
                     let sprint = this.checkSprint(issue.fields.resolutiondate);
                     if(sprint.name!==null){
-                        if(burndown[sprint.name][issue.fields.customfield_10500.value])
-                        burndown[sprint.name][issue.fields.customfield_10500.value].push({amount: issue.fields.customfield_10200, epic: issue.fields.customfield_10006});
+                        if(burndown[sprint.name][issue.fields[this.state.team].value])
+                        burndown[sprint.name][issue.fields[this.state.team].value].push({amount: issue.fields[this.state.storyPoint], epic: issue.fields[this.state.parentEpic]});
                     } 
                 }
             });
@@ -220,12 +226,12 @@ class Reports extends Component {
             return <div  style={styles.loader}><Preloader size='big'/></div>
         }
 
-        if(this.state.burndown===undefined && !this.state.loading){
+        if( (this.state.burndown===undefined||this.state.burndown===null)  && !this.state.loading){
             return(
                 <div className="App">  
                     <Card style={styles.capacityTable}>
                         <h3>No Burndown Available</h3>
-                        <Button className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
+                        <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
                     </Card>
                 </div>
             );

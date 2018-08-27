@@ -22,16 +22,10 @@ class App extends Component {
     super(props);
 
     this.state = {
-      email: 'mdent@deloitte.ca',
-      password: '2350Deerrun',
-      project: 'GTMP'
+      email: null,
+      password: null,
+      project: null
     }
-
-    // this.state = {
-    //   email: null,
-    //   password: null,
-    //   project: null
-    // }
 
   }
 

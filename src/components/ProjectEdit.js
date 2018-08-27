@@ -8,6 +8,7 @@ import 'react-dropdown/style.css';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
+import { runInThisContext } from 'vm';
 
 const options = [{ value: 1, label: 1 }, { value: 2, label: 2 }, { value: 3, label: 3 }, { value: 4, label: 4 }, { value: 5, label: 5 }];
 
@@ -19,14 +20,14 @@ class ProjectEdit extends Component {
         this.state = {
             sprints: 1,
             weeks: 1,
-            dbSet: false,
             uploading: false,
             sprintsDate: null,
             url: null,
             team: null,
             parentEpic: null,
             storyPoint: null,
-            project: null
+            project: null,
+            epics: null
         }
     }
 
@@ -43,13 +44,14 @@ class ProjectEdit extends Component {
                 project: this.props.project
             });
             
-            this.setState({
-                url: response.data.project_url, 
+            this.setState({ 
                 team: response.data.team_field,
                 parentEpic: response.data.parentEpic_field,
                 storyPoint: response.data.storyPoint_field,
-                project: response.data.project_key,
-                sprintsDate: response.data.sprints
+                sprintsDate: response.data.sprints,
+                sprints: response.data.sprintNumber,
+                weeks: response.data.weekNumber,
+                epics: response.data.epics
             });
         }catch(e){
             console.error(e);
@@ -57,7 +59,7 @@ class ProjectEdit extends Component {
     }
 
 
-    setDB = async () =>{
+    updateSprints = async () =>{
         try{
 
             let sprintsObject = {};
@@ -85,9 +87,28 @@ class ProjectEdit extends Component {
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
-                sprints: this.state.sprintsDate
+                sprints: this.state.sprintsDate,
+                sprintNumber: this.state.sprints,
+                weekNumber: this.state.weeks
             });
 
+            const response4 = await axios.post("/project/setBurndown",{
+                email: this.props.email,
+                password: this.props.password,
+                project: this.props.project,
+                burndown: null
+            });
+
+            alert('Sprint Stucture Updated')
+
+        }catch(e){
+            console.error(e)       
+        }
+
+    }
+
+    updateEpics = async () => {
+        try{
             const response4 = await axios.post("/epic/deleteEpics",{
                 email: this.props.email,
                 password: this.props.password,
@@ -107,7 +128,7 @@ class ProjectEdit extends Component {
             });
 
             for(let i=0; i<response5.data.epics.length; i++){
-                let response7 = await axios.post("0/story/setStories",{
+                let response7 = await axios.post("/story/setStories",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -115,15 +136,36 @@ class ProjectEdit extends Component {
                 });
             }
 
-            this.setState({uploading: false});
-
+            alert('Epics Updated');
         }catch(e){
-            console.log(e)       
+            console.error(e) 
         }
-
     }
 
-    updateFields = () => {
+    updateStories = async () => {
+        try{
+            const response6 = await axios.post("/story/deleteStories",{
+                email: this.props.email,
+                password: this.props.password,
+                project: this.props.project
+            });
+
+            for(let i=0; i<this.state.epics.length; i++){
+                let response7 = await axios.post("/story/setStories",{
+                    email: this.props.email,
+                    password: this.props.password,
+                    project: this.props.project,
+                    epic: this.state.epics[i].epic_key
+                });
+            }
+
+            alert('Stories Updated');
+        }catch(e){
+            console.error(e) 
+        }
+    }
+
+    updateFields = async () => {
         if(this.state.project === "" || 
             this.state.url === "" || 
             this.state.team === "" || 
@@ -131,7 +173,20 @@ class ProjectEdit extends Component {
             this.state.storyPoint === ""){
                 alert('All fields need to be filled out');
             }else{
-                //this.setState({uploading: true});
+                try{
+                    const response = await axios.put("/project/fields",{
+                        email: this.props.email,
+                        password: this.props.password,
+                        project: this.props.project,
+                        team: this.state.team,
+                        parentEpic: this.state.parentEpic,
+                        storyPoint: this.state.storyPoint
+                    });
+
+                    alert('Updated Custom Fields')
+                }catch(e){
+                    console.error(e);
+                }
             }
     }
 
@@ -196,25 +251,28 @@ class ProjectEdit extends Component {
 
         return (
         <Card style={styles.projectSetting}>
-            <div style={styles.formFields}>
-                <input name="url" type='text' placeholder='Project URL' value={this.state.url} onChange={this.onFormChange}/>
-                <input name="project" type='text' placeholder='Project Key' value={this.state.project} onChange={this.onFormChange}/>
-                <input name="team" type='text' placeholder='Team Custom Field' value={this.state.team} onChange={this.onFormChange}/>
-                <input name="parentEpic" type='text' placeholder='Epic Parent Custom Field' value={this.state.parentEpic} onChange={this.onFormChange}/>  
-                <input name="storyPoint" type='text' placeholder='Story Point Custom Field' value={this.state.storyPoint} onChange={this.onFormChange}/>
-                <Button onClick={this.updateFields}>Update Fields</Button>
+            <div style={styles.formArea}>
+                    <div style={styles.formFields}>
+                        <b>Team Custom Field</b><input name="team" type='text' placeholder='Team Custom Field' value={this.state.team} onChange={this.onFormChange}/>
+                        <b>Parent Epic Custom Field</b><input name="parentEpic" type='text' placeholder='Parent Epic Custom Field' value={this.state.parentEpic} onChange={this.onFormChange}/>  
+                        <b>Story Point Custom Field</b><input name="storyPoint" type='text' placeholder='Story Point Custom Field' value={this.state.storyPoint} onChange={this.onFormChange}/>
+                        <Button onClick={this.updateFields}>Update Fields</Button>
+                    </div>
+                    <div style={styles.btnFields}>
+                        <p>Click here to get the most up to date epics</p>
+                        <Button style={styles.btn} onClick={this.updateEpics}>Update Epics</Button>
+                        <br />
+                        <p>Click here to get the most up to date stories</p>
+                        <Button style={styles.btn} onClick={this.updateStories}>Update Stories</Button>
+                    </div>
             </div>
-            <div>
-                <Button>Update Epics</Button>
-                <Button>Update Stories</Button>
-            </div>
-            <div>
+            <div style={styles.sprintArea}>
                 <h5>Number of Sprints</h5>
                 <Dropdown options={options} onChange={this.onSprintSelect} value={options[this.state.sprints-1]}/>
                 <h5>Weeks/Sprint</h5>
                 <Dropdown options={options} onChange={this.onWeekSelect} value={options[this.state.weeks-1]}/>
                 {this.state.sprintsDate? this.renderSprints(): null}
-                <Button onClick={this.create}>Update Sprints</Button>
+                <Button onClick={this.updateSprints}>Update Sprints</Button>
             </div>
             <Button style={styles.backBtn} className="green"><Link to="/dashboard" style={styles.backBtnLink}><Icon tiny>arrow_back</Icon></Link></Button>
         </Card>
@@ -249,7 +307,25 @@ const styles = {
     },
     formFields: {
         "textAlign": "center",
-        "margin": "0 10%",
-        "width": "30%"
-    }
+        "width": "30%",
+        "position": "absolute",
+        "left": "10%"
+    },
+    btnFields: {
+        "textAlign": "center",
+        "width": "30%",
+        "position": "absolute",
+        "left": "50%",
+    },
+    btn: {
+        "margin": "1rem 0"
+    },
+    formArea: {
+        "display": "-webkit-box",
+        "position": "relative",
+        "marginBottom": "25rem"
+    },
+    sprintArea: {
+        "textAlign": "center"
+    },
 }
