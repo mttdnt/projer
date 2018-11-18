@@ -4,10 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
-    "body-parser": "^1.18.3",
-    "express": "^4.16.3",
     "moment": "^2.22.2",
-    "mongoose": "^5.2.3",
     "react": "^16.4.1",
     "react-datepicker": "^1.6.0",
     "react-dom": "^16.4.1",
@@ -16,8 +13,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
-    "recharts": "^1.1.0",
-    "request-promise": "^4.2.2"
+    "recharts": "^1.1.0"
   },
   "scripts": {
     "client": "react-scripts start",
@@ -27,9 +23,5 @@
     "server": "nodemon lib/server.js --ignore src/",
     "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
-  "proxy": "http://localhost:5000",
-  "devDependencies": {
-    "concurrently": "^3.6.1",
-    "nodemon": "^1.17.3"
-  }
+  "proxy": "http://localhost:5000"
 }
