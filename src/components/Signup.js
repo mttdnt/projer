@@ -47,13 +47,13 @@ class Signup extends Component {
                 }
             }
 
-            const response1 = await axios.post("/user/signup",{
+            const response1 = await axios.post(process.env.REACT_APP_API+"/user/signup",{
                 email: this.state.email,
                 password: this.state.password,
                 url: this.state.url,
             });
 
-            const response2 = await axios.post("/project/setProject",{
+            const response2 = await axios.post(process.env.REACT_APP_API+"/project/setProject",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project,
@@ -65,28 +65,28 @@ class Signup extends Component {
                 weeks: this.state.weeks
             });
 
-            const response3 = await axios.post("/team/setTeams",{
+            const response3 = await axios.post(process.env.REACT_APP_API+"/team/setTeams",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project,
                 sprints: sprintsObject
             });
 
-            const response4 = await axios.post("/project/setSprintsTeams",{
+            const response4 = await axios.post(process.env.REACT_APP_API+"/project/setSprintsTeams",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project,
                 sprints: this.state.sprintsDate
             });
 
-            const response5 = await axios.post("/epic/setEpics",{
+            const response5 = await axios.post(process.env.REACT_APP_API+"/epic/setEpics",{
                 email: this.state.email,
                 password: this.state.password,
                 project: this.state.project
             });
 
             for(let i=0; i<response5.data.epics.length; i++){
-                let response6 = await axios.post("/story/setStories",{
+                let response6 = await axios.post(process.env.REACT_APP_API+"/story/setStories",{
                     email: this.state.email,
                     password: this.state.password,
                     project: this.state.project,

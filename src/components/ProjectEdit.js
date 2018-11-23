@@ -38,7 +38,7 @@ class ProjectEdit extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("/project/getProject",{
+            const response = await axios.post(process.env.REACT_APP_API+"/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -70,20 +70,20 @@ class ProjectEdit extends Component {
                 }
             }
 
-            const response1 = await axios.post("/team/deleteTeams",{
+            const response1 = await axios.post(process.env.REACT_APP_API+"/team/deleteTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response2 = await axios.post("team/setTeams",{
+            const response2 = await axios.post(process.env.REACT_APP_API+"team/setTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
                 sprints: sprintsObject
             });
 
-            const response3 = await axios.post("/project/setSprintsTeams",{
+            const response3 = await axios.post(process.env.REACT_APP_API+"/project/setSprintsTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
@@ -92,7 +92,7 @@ class ProjectEdit extends Component {
                 weekNumber: this.state.weeks
             });
 
-            const response4 = await axios.post("/project/setBurndown",{
+            const response4 = await axios.post(process.env.REACT_APP_API+"/project/setBurndown",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project,
@@ -109,26 +109,26 @@ class ProjectEdit extends Component {
 
     updateEpics = async () => {
         try{
-            const response4 = await axios.post("/epic/deleteEpics",{
+            const response4 = await axios.post(process.env.REACT_APP_API+"/epic/deleteEpics",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response5 = await axios.post("/epic/setEpics",{
+            const response5 = await axios.post(process.env.REACT_APP_API+"/epic/setEpics",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
-            const response6 = await axios.post("/story/deleteStories",{
+            const response6 = await axios.post(process.env.REACT_APP_API+"/story/deleteStories",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
             for(let i=0; i<response5.data.epics.length; i++){
-                let response7 = await axios.post("/story/setStories",{
+                let response7 = await axios.post(process.env.REACT_APP_API+"/story/setStories",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -144,14 +144,14 @@ class ProjectEdit extends Component {
 
     updateStories = async () => {
         try{
-            const response6 = await axios.post("/story/deleteStories",{
+            const response6 = await axios.post(process.env.REACT_APP_API+"/story/deleteStories",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
             });
 
             for(let i=0; i<this.state.epics.length; i++){
-                let response7 = await axios.post("/story/setStories",{
+                let response7 = await axios.post(process.env.REACT_APP_API+"/story/setStories",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,
@@ -174,7 +174,7 @@ class ProjectEdit extends Component {
                 alert('All fields need to be filled out');
             }else{
                 try{
-                    const response = await axios.put("/project/fields",{
+                    const response = await axios.put(process.env.REACT_APP_API+"/project/fields",{
                         email: this.props.email,
                         password: this.props.password,
                         project: this.props.project,

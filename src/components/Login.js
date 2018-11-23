@@ -24,7 +24,7 @@ class Login extends Component {
     onLogin = async () => {
 
         try{
-            const login = await axios.post("/user/login",{
+            const login = await axios.post(process.env.REACT_APP_API+"/user/login",{
                 email: this.state.email,
                 password: this.state.password
             });
@@ -37,6 +37,7 @@ class Login extends Component {
 
 
     render() {
+        console.log(process.env)
         return (
         <Card style={styles.loginPane}>  
             <span style={styles.iconInput}><Icon medium style={styles.icon}>email</Icon><input name="email" label="Email" value={this.state.email} onChange={this.onFormChange} placeholder="Email" style={styles.input}/></span>

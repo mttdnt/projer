@@ -45,7 +45,7 @@ class ProjectSetup extends Component {
                 }
             }
 
-            const response2 = await axios.post("/project/setProject",{
+            const response2 = await axios.post(process.env.REACT_APP_API+"/project/setProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.state.project,
@@ -57,28 +57,28 @@ class ProjectSetup extends Component {
                 weeks: this.state.weeks
             });
 
-            const response3 = await axios.post("/team/setTeams",{
+            const response3 = await axios.post(process.env.REACT_APP_API+"/team/setTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.state.project,
                 sprints: sprintsObject
             });
 
-            const response4 = await axios.post("/project/setSprintsTeams",{
+            const response4 = await axios.post(process.env.REACT_APP_API+"/project/setSprintsTeams",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.state.project,
                 sprints: this.state.sprintsDate
             });
 
-            const response5 = await axios.post("/epic/setEpics",{
+            const response5 = await axios.post(process.env.REACT_APP_API+"/epic/setEpics",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.state.project
             });
 
             for(let i=0; i<response5.data.epics.length; i++){
-                let response6 = await axios.post("/story/setStories",{
+                let response6 = await axios.post(process.env.REACT_APP_API+"/story/setStories",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.state.project,

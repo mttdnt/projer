@@ -33,7 +33,7 @@ class Reports extends Component {
 
     getProject = async () => {
         try{
-            const response = await axios.post("/project/getProject",{
+            const response = await axios.post(process.env.REACT_APP_API+"/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -61,7 +61,7 @@ class Reports extends Component {
 
     getUpdates = async() =>{
         try{
-            const response = await axios.post("/jira/getStories",{
+            const response = await axios.post(process.env.REACT_APP_API+"/jira/getStories",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project

@@ -27,7 +27,7 @@ class DependencyPlanner extends Component {
     getProject = async () => {
 
         try{
-            const response = await axios.post("/project/getProject",{
+            const response = await axios.post(process.env.REACT_APP_API+"/project/getProject",{
                 email: this.props.email,
                 password: this.props.password,
                 project: this.props.project
@@ -45,7 +45,7 @@ class DependencyPlanner extends Component {
     setDependencies = async () => {
         try{
             for(let i=0; i<this.state.epics.length; i++){
-                let response = await axios.post("/epic/updateDependency",{
+                let response = await axios.post(process.env.REACT_APP_API+"/epic/updateDependency",{
                     email: this.props.email,
                     password: this.props.password,
                     project: this.props.project,

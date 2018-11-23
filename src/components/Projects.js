@@ -26,7 +26,7 @@ class ProjectSetup extends Component {
 
     getProjects = async () =>{
         try{
-            const response = await axios.post("/user/getProjects",{
+            const response = await axios.post(process.env.REACT_APP_API+"/user/getProjects",{
                 email: this.props.email,
                 password: this.props.password
             });
