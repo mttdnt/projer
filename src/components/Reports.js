@@ -102,13 +102,14 @@ class Reports extends Component {
     }
 
     checkSprint = (date) =>{
-
-        let sprint = null;
+        let sprint = sprint = this.state.sprints[0];
         for(let i=0; i<this.state.sprints.length; i++){
             let d1 = this.formatDate(this.state.sprints[i].start);
             let d2 = this.formatDate(date);
             let d3 = this.formatDate(this.state.sprints[i].end);
             d3.setDate(d3.getDate()+6);
+
+            console.log(this.state.sprints[i])
             
             if(d1 <= d2 && d2 < d3){
                 sprint = this.state.sprints[i];
